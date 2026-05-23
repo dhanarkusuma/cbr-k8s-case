@@ -1,45 +1,37 @@
 version: "3.9"
 
 services:
-  api:
+
+  app:
     build: .
-    container_name: cbr-api
+    container_name: cbr-app
     ports:
-      - "8000:8000"
+      - "8501:8501"
     volumes:
       - .:/app
-    environment:
-      MONGO_URI: ${MONGO_URI} 
-      DB_NAME: ${DB_NAME} 
+    env_file:
+      - .env
     depends_on:
-      - mongodb
-    restart: unless-stopped
+      - mariadb
 
-  mongodb:
-    image: mongo:7
-    container_name: cbr-mongodb
-    ports:
-      - "27017:27017"
+  mariadb:
+    image: mariadb:11
+    container_name: cbr-mariadb
+    restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: root
-    volumes:
-      - mongo_data:/data/db
-    restart: unless-stopped
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cbr_k8s
+    ports:
+      - "3306:3306"
 
-  mongo-express:
-    image: mongo-express
-    container_name: cbr-mongo-express
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: cbr-phpmyadmin
+    restart: always
     ports:
-      - "8081:8081"
+      - "8080:80"
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: root
-      ME_CONFIG_MONGODB_URL: mongodb://root:root@mongodb:27017/
-      ME_CONFIG_BASICAUTH: "false"
+      PMA_HOST: mariadb
+      MYSQL_ROOT_PASSWORD: root
     depends_on:
-      - mongodb
-    restart: unless-stopped
-
-volumes:
-  mongo_data:
+      - mariadb

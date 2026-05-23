@@ -1,7 +1,6 @@
-fastapi
-uvicorn[standard]
-pymongo
+streamlit
 pandas
-numpy
+sqlalchemy
+pymysql
 scikit-learn
 python-dotenv
